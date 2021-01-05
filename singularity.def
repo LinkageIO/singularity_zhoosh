@@ -1,0 +1,59 @@
+Bootstrap: library
+From: ubuntu:20.04
+
+%setup
+
+%files
+    linkage_env.sh /.singularity.d/env/99-zz_custom_env.sh
+
+%post
+    # Do some filesystem setup
+    export OPTDIR="/opt/linkage"
+    mkdir -p ${OPTDIR}/src
+    mkdir -p ${OPTDIR}/share
+    mkdir -p ${OPTDIR}/bin 
+    mkdir -p ${OPTDIR}/home
+
+    # add the universe repo
+    apt-get install software-properties-common --yes
+    add-apt-repository universe 
+
+    # update and install essentials
+    apt-get update && apt-get upgrade --yes
+    apt-get install \
+    curl wget sudo bc \
+    zsh  vim git tree tmux\
+    parallel \
+    default-jre \
+    unzip less \
+    build-essential \
+    --yes 
+
+    # oh my zsh
+    cd $OPTDIR/home
+    git clone https://github.com/ohmyzsh/ohmyzsh.git .oh-my-zsh
+    cp .oh-my-zsh/templates/zshrc.zsh-template .zshrc
+
+    # Download and install conda
+    cd $OPTDIR/src
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda
+    export PATH="$PATH:/opt/conda/bin"
+ 
+    # Install snakemake 
+    conda install -c bioconda -c conda-forge snakemake --yes
+    conda init zsh
+
+    # Install some python packages
+    #pip install ipython matplotlib xlwt pandas numpy xlrd
+
+%environment
+    # These are set at container runtime
+    export OPTDIR="/opt/linkage"
+    export PATH="$PATH:$OPTDIR/bin"
+    export PATH="$PATH:/opt/conda/bin"
+    export PATH="$PATH:$HOME/.local/bin"
+    # Set the locale so the shell wont complain
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    export MPLCONFIGDIR=/tmp/matplotlib/
