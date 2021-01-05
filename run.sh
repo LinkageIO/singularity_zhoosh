@@ -5,6 +5,6 @@ singularity shell \
     --bind "$(pwd)/Sprint":/opt/linkage/home,/tmp:/tmp \
     --contain --no-home \
     --writable \
-    --pwd /opt/linkage/sprint \
+    --pwd /opt/linkage/home \
     -H /opt/linkage/home \
-    sprint12.sif
+    sprint00.sif
